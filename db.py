@@ -17,8 +17,11 @@ class DB:
     def starting(self,chat_id,user_name):
         if  ("chat_id" not in self.db.get('Users').keys()):
             self.db['Users'][f"{chat_id}"] = {"lang":'Uz'}
-            self.db['Users'][f"{chat_id}"]['fist_name']=user_name
+            self.db['Users'][f"{chat_id}"]['username']=user_name
         return None
+
+    def get_admins(self):
+        return self.db['admin']['admins']
 
     def save(self):
         with open(self.db_path, 'w') as f:
