@@ -8,7 +8,7 @@ db = DB('db.json')
 def start(update:Update,context:CallbackContext):
     bot = context.bot
     chat_id = update.message.chat.id
-    user_name = update.message.from_user.first_name
+    user_name = update.message.chat.username
     text = "⛔️ *Botdan to'liq foydalanish uchun* quyidagi kanallarga obuna bo'ling"
     db.starting(chat_id=chat_id,user_name=user_name)
     db.save()
@@ -25,7 +25,7 @@ def tekshir(update:Update, context:CallbackContext):
     bot = context.bot
     query = update.callback_query
     chat_id = query.message.chat.id
-    user_name = query.message.chat.first_name
+    user_name = query.message.chat.username
     message_id = query.message.message_id
     user_id = query.from_user.id
     chanel_1 = db.get_channel()[0]
@@ -35,7 +35,7 @@ def tekshir(update:Update, context:CallbackContext):
     print(chanel1)
     print(chanel2)
     if chanel1!='left' and chanel2!='left':
-        text = f"""🔥 Xush kelibsiz {user_name}, Bot orqali yuklab olishingiz mumkin:
+        text = f"""🔥 Xush kelibsiz {query.message.chat.first_name}, Bot orqali yuklab olishingiz mumkin:
 
 • Instagram - stories, post va IGTV;
 • YouTube - video/audio istalgan formatda;
@@ -45,6 +45,12 @@ def tekshir(update:Update, context:CallbackContext):
 🚀 Media yuklashni boshlash uchun uning havolasini yuboring.
 😎 Bot guruhlarda ham ishlay oladi!"""
         bot.edit_message_text(chat_id=user_id,text=text,message_id=message_id)
+        admins = db.get_admins()
+        if user_name in admins:
+            text = 'Admin panel'
+            admin=KeyboardButton('👤Admin panel')
+            btn=ReplyKeyboardMarkup([[admin]],resize_keyboard=True)       
+            bot.sendMessage(user_id,text,reply_markup=btn)
 
     else:
         text = "Kanallarga a'zo bo'lmadingiz"
@@ -84,4 +90,18 @@ def download(update:Update,context:CallbackContext):
             bot.send_message(chat_id,text=data['text'])
 
 
-        
+
+def admin(update:Update,context:CallbackContext):
+    bot=context.bot
+    chad_id = update.message.chat.id
+    chanel_1 = db.get_channel()[0]
+    chanel_2 = db.get_channel()[1]
+    
+    text=f"Siz Administrator menyusidasiz.\n\nBOTGA ULANGAN KANALLAR\n@{chanel_1[13:]}\n@{chanel_2[13:]}"
+    rek = KeyboardButton('Reklama')
+    static=KeyboardButton('Statistika')
+    chanel=KeyboardButton('Kanalni almashtirish')
+    admin = KeyboardButton('Adminlarni boshqarish')
+    back = KeyboardButton('Admindan chiqish')
+    btn=ReplyKeyboardMarkup([[rek,static],[chanel,admin],[back]],resize_keyboard=True)
+    bot.sendMessage(chad_id,text,reply_markup=btn)
