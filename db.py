@@ -15,13 +15,14 @@ class DB:
                 json.dump(self.db, f, indent=4)
     
     def starting(self,chat_id,user_name):
-        if  ("chat_id" not in self.db.get('Users').keys()):
-            self.db['Users'][f"{chat_id}"] = {"lang":'Uz'}
+        if  (f"{chat_id}" not in self.db.get('Users').keys()):
+            self.db['Users'][f"{chat_id}"] = {"lang":'uz'}
             self.db['Users'][f"{chat_id}"]['username']=user_name
+            self.db['Users'][f"{chat_id}"]['status']='member'
         return None
 
-    def get_admins(self):
-        return self.db['admin']['admins']
+    def get_admin(self,chat_id):
+        return self.db['Users'][f"{chat_id}"]['status']
 
     def save(self):
         with open(self.db_path, 'w') as f:
@@ -36,8 +37,6 @@ class DB:
     def get_lang(self,chat_id):
         return self.db['Users'][f'{chat_id}']['lang']
     
-    def obuna(self,chat_id):
-        return self.db['Users'][chat_id]['obuna']
     
     def get_channel(self):
         return self.db['chanel']['1'],self.db['chanel']['2']
