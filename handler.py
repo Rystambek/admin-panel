@@ -104,7 +104,9 @@ def download(update:Update,context:CallbackContext):
                         bot.send_photo(chat_id=chat_id,photo=id)
                 bot.send_message(chat_id,text=text)
         else:
-            bot.send_message(chat_id,'⛔️ Linkda xatolik bor\nTekshirib qayta yuboring')
+            admin = db.get_admin(chat_id)
+            if admin != 'creator':
+                bot.send_message(chat_id,'⛔️ Linkda xatolik bor\nTekshirib qayta yuboring')
 
     if db.get_admin(chat_id) == 'creator':
 
@@ -125,8 +127,8 @@ def download(update:Update,context:CallbackContext):
                 [InlineKeyboardButton('🚫 Bekor qilish',callback_data=f'rek_False'),InlineKeyboardButton('✅ Yuborish',callback_data=f'rek_True')]])
             bot.send_message(chat_id,'❇️ Xabarni tekshiring va yuborishni tasdiqlang…',reply_markup=keyboard)
         
-    else:
-        bot.send_message(chat_id,'❌ Xabar turi qo‘llab-quvvatlanmaydi.')
+        else:
+            bot.send_message(chat_id,'❌ Xabar turi qo‘llab-quvvatlanmaydi.')
 
 
 def admin(update:Update,context:CallbackContext):
@@ -168,5 +170,25 @@ def reklama(update:Update,context:CallbackContext):
 def rek_query(update:Update,context:CallbackContext):
     bot = context.bot
     query = update.callback_query
-    data,bool,media = query.data.split('_')
-    print(media)
+    data,bool = query.data.split('_')
+    message_id = query.message.message_id
+    chat_id = query.message.chat.id
+    print(bool)
+    if bool == 'True':
+        bot.edit_message_text(chat_id=chat_id,message_id=message_id,text='⏳')
+        users = db.get_users()
+        user_number = len(users)-1 # adminlar sonini ayiramiz
+        s = 1
+        for user,data in users.items():
+            if data['status'] != 'creator':
+                bot.send_message(chat_id=user,text = 'xabar')
+                
+                bot.edit_message_text(chat_id=chat_id,message_id=message_id,text=f'✅ Yuborildi {s}/{user_number}')
+                s += 1
+            else:
+                continue
+
+        
+    else:
+        bot.delete_message(chat_id=chat_id,message_id=message_id)
+
