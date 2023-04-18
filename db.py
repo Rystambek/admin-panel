@@ -51,17 +51,17 @@ class DB:
     
     def creator(self):
         users = self.db['Users']
-        len_admin = 0
+        admins = []
         for user,data in users.items():
             if data['status'] == 'creator':
-                len_admin += 1
-        return len_admin
+                admins.append(user)
+        return admins
     
     def member(self):
         users = self.db['Users']
-        len_member = 0
+        members = []
         for user,data in users.items():
             if data['status'] == 'member':
-                len_member += 1
-        return len_member
+                members.append(user)
+        return members
 
