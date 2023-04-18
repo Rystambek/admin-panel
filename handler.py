@@ -1,6 +1,7 @@
 from telegram import Update,ReplyKeyboardMarkup,KeyboardButton,InlineKeyboardButton,InlineKeyboardMarkup
 from telegram.ext import Updater, Filters, CallbackContext, MessageHandler, CallbackQueryHandler, CommandHandler
 from request import media
+from pprint import pprint
 import requests
 from db import DB
 db = DB('db.json')
@@ -74,35 +75,58 @@ def tekshir(update:Update, context:CallbackContext):
 def download(update:Update,context:CallbackContext):
     bot = context.bot
     chat_id = update.message.chat.id
-    message = update.message.text
-    print(message[12:21])
-    if message[12:21] == 'instagram':
-        post = media(message)
-        print(post)
-        data = {
-            'text':post.get('title','@JR_InstagramBot bilan yuklab olindi.'),
-            'media':post.get('media'),
-            'type':post.get('Type')
-        }
+    if update.message.text:
+        message = update.message.text
+        print(message[12:21])
+        if message[12:21] == 'instagram':
+            post = media(message)
+            print(post)
+            data = {
+                'text':post.get('title','@JR_InstagramBot bilan yuklab olindi.'),
+                'media':post.get('media'),
+                'type':post.get('Type')
+            }
 
-        if data['type']=='Post-Video':
-            text = data['text'] + '\n\n@JR_InstagramBot bilan yuklab olindi.'
-            bot.send_video(chat_id=chat_id,video=data['media'],caption=text)
-            
-        elif data['type']=='Post-Image':
-            text = data['text'] + '\n\n@JR_InstagramBot bilan yuklab olindi.'
-            bot.send_photo(chat_id=chat_id,photo=data['media'],caption=text)
+            if data['type']=='Post-Video':
+                text = data['text'] + '\n\n@JR_InstagramBot bilan yuklab olindi.'
+                bot.send_video(chat_id=chat_id,video=data['media'],caption=text)
+                
+            elif data['type']=='Post-Image':
+                text = data['text'] + '\n\n@JR_InstagramBot bilan yuklab olindi.'
+                bot.send_photo(chat_id=chat_id,photo=data['media'],caption=text)
 
-        elif data['type'] == 'Carousel':
-            text = data['text'] + '\n\n@JR_InstagramBot bilan yuklab olindi.'
-            for id in data['media']:
-                if 'video' in id:
-                    bot.send_video(chat_id=chat_id,video=id)
-                else:
-                    bot.send_photo(chat_id=chat_id,photo=id)
-            bot.send_message(chat_id,text=text)
+            elif data['type'] == 'Carousel':
+                text = data['text'] + '\n\n@JR_InstagramBot bilan yuklab olindi.'
+                for id in data['media']:
+                    if 'video' in id:
+                        bot.send_video(chat_id=chat_id,video=id)
+                    else:
+                        bot.send_photo(chat_id=chat_id,photo=id)
+                bot.send_message(chat_id,text=text)
+        else:
+            bot.send_message(chat_id,'⛔️ Linkda xatolik bor\nTekshirib qayta yuboring')
+
+    if db.get_admin(chat_id) == 'creator':
+
+        if update.message.video:
+            text = update.message.caption_markdown_v2
+            video = update.message.video.file_id
+            bot.send_video(chat_id,video, caption = text,parse_mode='MarkdownV2')
+            media = {'video':video,'text':text}
+            keyboard = InlineKeyboardMarkup([
+                [InlineKeyboardButton('🚫 Bekor qilish',callback_data=f'rek_False'),InlineKeyboardButton('✅ Yuborish',callback_data=f'rek_True')]])
+            bot.send_message(chat_id,'❇️ Xabarni tekshiring va yuborishni tasdiqlang…',reply_markup=keyboard)
+        elif update.message.photo:
+            text = update.message.caption_markdown_v2
+            photo = update.message.photo[0]['file_id']
+            bot.send_photo(chat_id,photo, caption = text,parse_mode='MarkdownV2')
+            media = {'photo':photo,'text':text}
+            keyboard = InlineKeyboardMarkup([
+                [InlineKeyboardButton('🚫 Bekor qilish',callback_data=f'rek_False'),InlineKeyboardButton('✅ Yuborish',callback_data=f'rek_True')]])
+            bot.send_message(chat_id,'❇️ Xabarni tekshiring va yuborishni tasdiqlang…',reply_markup=keyboard)
+        
     else:
-        bot.send_message(chat_id,'⛔️ Linkda xatolik bor\nTekshirib qayta yuboring')
+        bot.send_message(chat_id,'❌ Xabar turi qo‘llab-quvvatlanmaydi.')
 
 
 def admin(update:Update,context:CallbackContext):
@@ -129,3 +153,20 @@ def back_admin(update:Update,context:CallbackContext):
     admin=KeyboardButton('🔐 Admin')
     btn=ReplyKeyboardMarkup([[admin]],resize_keyboard=True)       
     bot.sendMessage(chat_id,text,reply_markup=btn)
+
+def reklama(update:Update,context:CallbackContext):
+    bot = context.bot
+    chat_id = update.message.chat.id
+    admin = db.get_admin(chat_id=chat_id)
+    if admin == 'creator':
+        text = '*Reklamangizni yuboring*'
+        back = KeyboardButton('🔚 Chiqish')
+        btn=ReplyKeyboardMarkup([[back]],resize_keyboard=True) 
+        bot.sendMessage(chat_id,text,reply_markup = btn,parse_mode='MarkdownV2')
+
+
+def rek_query(update:Update,context:CallbackContext):
+    bot = context.bot
+    query = update.callback_query
+    data,bool,media = query.data.split('_')
+    print(media)
