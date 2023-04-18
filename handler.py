@@ -1,6 +1,6 @@
 from telegram import Update,ReplyKeyboardMarkup,KeyboardButton,InlineKeyboardButton,InlineKeyboardMarkup
 from telegram.ext import Updater, Filters, CallbackContext, MessageHandler, CallbackQueryHandler, CommandHandler
-from request import media
+from request import Media
 from pprint import pprint
 import requests
 from db import DB
@@ -30,7 +30,10 @@ def start(update:Update,context:CallbackContext):
             bot.sendMessage(chat_id,text,reply_markup=keyboard,parse_mode="MarkdownV2")
 
     except KeyError:
-        
+        admins = db.creator()
+        total = db.get_users()
+        for admin in admins:
+            bot.send_message(chat_id=admin,text=f'🆕 Yangi Foydalanuvchi! \nUmumiy: [{len(total)}]\nIsmi: {update.message.chat.first_name}\nLinki: @{user_name}')
         text = "⛔️ *Botdan to'liq foydalanish uchun* quyidagi kanallarga obuna bo'ling"
         db.starting(chat_id=chat_id,user_name=user_name)
         db.save()
@@ -75,21 +78,25 @@ def tekshir(update:Update, context:CallbackContext):
 def download(update:Update,context:CallbackContext):
     bot = context.bot
     chat_id = update.message.chat.id
+    bot.send_message(chat_id=chat_id,text='⏳')
     if update.message.text:
         message = update.message.text
+        
         print(message[12:21])
         if message[12:21] == 'instagram':
-            post = media(message)
+            post = Media(message)
             print(post)
             data = {
                 'text':post.get('title','@JR_InstagramBot bilan yuklab olindi.'),
                 'media':post.get('media'),
                 'type':post.get('Type')
             }
-
+            
+            
             if data['type']=='Post-Video':
                 text = data['text'] + '\n\n@JR_InstagramBot bilan yuklab olindi.'
                 bot.send_video(chat_id=chat_id,video=data['media'],caption=text)
+                
                 
             elif data['type']=='Post-Image':
                 text = data['text'] + '\n\n@JR_InstagramBot bilan yuklab olindi.'
@@ -99,6 +106,7 @@ def download(update:Update,context:CallbackContext):
                 text = data['text'] + '\n\n@JR_InstagramBot bilan yuklab olindi.'
                 for id in data['media']:
                     if 'video' in id:
+                        
                         bot.send_video(chat_id=chat_id,video=id)
                     else:
                         bot.send_photo(chat_id=chat_id,photo=id)
@@ -127,7 +135,7 @@ def download(update:Update,context:CallbackContext):
                 [InlineKeyboardButton('🚫 Bekor qilish',callback_data=f'rek_False'),InlineKeyboardButton('✅ Yuborish',callback_data=f'rek_True')]])
             bot.send_message(chat_id,'❇️ Xabarni tekshiring va yuborishni tasdiqlang…',reply_markup=keyboard)
         
-        else:
+        elif update.message.text[12:21] != 'instagram':
             bot.send_message(chat_id,'❌ Xabar turi qo‘llab-quvvatlanmaydi.')
 
 
@@ -177,7 +185,8 @@ def rek_query(update:Update,context:CallbackContext):
     if bool == 'True':
         bot.edit_message_text(chat_id=chat_id,message_id=message_id,text='⏳')
         users = db.get_users()
-        user_number = len(users)-1 # adminlar sonini ayiramiz
+        len_admin = db.creator()
+        user_number = len(users)-len_admin # adminlar sonini ayiramiz
         s = 1
         for user,data in users.items():
             if data['status'] != 'creator':
@@ -198,11 +207,11 @@ def statistic(update:Update,context:CallbackContext):
     admin = db.get_admin(chat_id=chat_id)
     users = db.get_users()
     total = len(users)
-    admin_len = db.creator()
-    member = db.member()
+    admins = db.creator()
+    members = db.member()
 
     if admin == 'creator':
-        text = f"""📊 BOT STATISTIKASI\n#statistics\n\n@JR_InstagramBot\n▪️Yaratilgan: 18.03.2023\n\n▪️Foydalanuvchilar: {total}\n▫️Faol: {member}\n▪️Adminlar: {admin_len}"""
+        text = f"""📊 BOT STATISTIKASI\n #statistics\n\n @JR_InstagramBot\n▪️Yaratilgan: 18.03.2023\n\n▪️Foydalanuvchilar: {total}\n▫️Faol: {len(members)}\n▪️Adminlar: {len(admins)}"""
         back = KeyboardButton('🔚 Chiqish')
         btn=ReplyKeyboardMarkup([[back]],resize_keyboard=True) 
         bot.sendMessage(chat_id,text,reply_markup = btn)
