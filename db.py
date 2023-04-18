@@ -46,3 +46,5 @@ class DB:
         self.db['chanel']['2']=chan2
         return 'Ok'
     
+    def get_users(self):
+        return self.db['Users']
