@@ -1,6 +1,6 @@
 import requests
 
-def media(link):
+def Media(link):
     url = "https://instagram-downloader-download-instagram-videos-stories.p.rapidapi.com/index"
 
     querystring = {"url":link}
