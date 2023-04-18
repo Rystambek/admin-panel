@@ -192,3 +192,17 @@ def rek_query(update:Update,context:CallbackContext):
     else:
         bot.delete_message(chat_id=chat_id,message_id=message_id)
 
+def statistic(update:Update,context:CallbackContext):
+    bot = context.bot
+    chat_id = update.message.chat.id
+    admin = db.get_admin(chat_id=chat_id)
+    users = db.get_users()
+    total = len(users)
+    admin_len = db.creator()
+    member = db.member()
+
+    if admin == 'creator':
+        text = f"""📊 BOT STATISTIKASI\n#statistics\n\n@JR_InstagramBot\n▪️Yaratilgan: 18.03.2023\n\n▪️Foydalanuvchilar: {total}\n▫️Faol: {member}\n▪️Adminlar: {admin_len}"""
+        back = KeyboardButton('🔚 Chiqish')
+        btn=ReplyKeyboardMarkup([[back]],resize_keyboard=True) 
+        bot.sendMessage(chat_id,text,reply_markup = btn)
