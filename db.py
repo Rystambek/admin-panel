@@ -48,3 +48,20 @@ class DB:
     
     def get_users(self):
         return self.db['Users']
+    
+    def creator(self):
+        users = self.db['Users']
+        len_admin = 0
+        for user,data in users.items():
+            if data['status'] == 'creator':
+                len_admin += 1
+        return len_admin
+    
+    def member(self):
+        users = self.db['Users']
+        len_member = 0
+        for user,data in users.items():
+            if data['status'] == 'member':
+                len_member += 1
+        return len_member
+
