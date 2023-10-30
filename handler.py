@@ -30,13 +30,15 @@ def start(update:Update,context:CallbackContext):
             bot.sendMessage(chat_id,text,reply_markup=keyboard,parse_mode="MarkdownV2")
 
     except KeyError:
+        db.starting(chat_id=chat_id,user_name=user_name)
+        db.save()
         admins = db.creator()
         total = db.get_users()
+
         for admin in admins:
             bot.send_message(chat_id=admin,text=f'🆕 Yangi Foydalanuvchi! \nUmumiy: [{len(total)}]\nIsmi: {update.message.chat.first_name}\nLinki: @{user_name}')
         text = "⛔️ *Botdan to'liq foydalanish uchun* quyidagi kanallarga obuna bo'ling"
-        db.starting(chat_id=chat_id,user_name=user_name)
-        db.save()
+        
         chanel_1 = db.get_channel()[0]
         chanel_2 = db.get_channel()[1]
         keyboard = InlineKeyboardMarkup([
@@ -78,7 +80,7 @@ def tekshir(update:Update, context:CallbackContext):
 def download(update:Update,context:CallbackContext):
     bot = context.bot
     chat_id = update.message.chat.id
-    bot.send_message(chat_id=chat_id,text='⏳')
+    
     if update.message.text:
         message = update.message.text
         
@@ -136,6 +138,9 @@ def download(update:Update,context:CallbackContext):
             bot.send_message(chat_id,'❇️ Xabarni tekshiring va yuborishni tasdiqlang…',reply_markup=keyboard)
         
         elif update.message.text[12:21] != 'instagram':
+            bot.send_message(chat_id,text=update.message.text)
+
+        else:
             bot.send_message(chat_id,'❌ Xabar turi qo‘llab-quvvatlanmaydi.')
 
 
@@ -186,7 +191,7 @@ def rek_query(update:Update,context:CallbackContext):
         bot.edit_message_text(chat_id=chat_id,message_id=message_id,text='⏳')
         users = db.get_users()
         len_admin = db.creator()
-        user_number = len(users)-len_admin # adminlar sonini ayiramiz
+        user_number = len(users)-len(len_admin) # adminlar sonini ayiramiz
         s = 1
         for user,data in users.items():
             if data['status'] != 'creator':

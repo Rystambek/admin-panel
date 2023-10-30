@@ -4,17 +4,25 @@
         "2": "https://t.me/Rustambek15649"
     },
     "Users": {
-        "5364657679": {
-            "lang": "Uz",
-            "fist_name": "rystam\u3164\u3164\u3164\u3164\u3164\u3164"
+        "6091871062": {
+            "lang": "uz",
+            "username": null,
+            "status": "member"
         },
         "996172963": {
-            "lang": "Uz",
-            "fist_name": "\u27aa\ud83d\udc99 Rustambek \u27aa\ud83d\udc99"
+            "lang": "uz",
+            "username": "Musulmon17",
+            "status": "creator"
         },
-        "5697662988": {
-            "lang": "Uz",
-            "fist_name": "OG'ABEK"
+        "1304241404": {
+            "lang": "uz",
+            "username": "tilloyev_1",
+            "status": "member"
+        },
+        "2007510369": {
+            "lang": "uz",
+            "username": "Diyorbek_0086",
+            "status": "member"
         }
     }
 }
